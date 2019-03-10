@@ -48,7 +48,7 @@ def calculate_users_objects(users, users_sessions)
     attributes = user
     user_sessions = users_sessions[user['id']]
     user_object = User.new(attributes: attributes, sessions: user_sessions)
-    users_objects = users_objects + [user_object]
+    users_objects << user_object
   end
 
   users_objects
@@ -65,13 +65,13 @@ def work(data_file)
     cols = line.split(',')
     if cols[0] == 'user'
       user = parse_user(line)
-      users = users + [user]
+      users << user
       users_sessions[user['id']] ||= []
     end
 
     if cols[0] == 'session'
       session = parse_session(line)
-      sessions = sessions + [parse_session(line)]
+      sessions << session
       users_sessions[session['user_id']] << session
     end
   end
