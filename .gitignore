@@ -2,3 +2,5 @@
 .git
 *.keep
 .DS_Store
+/trash
+*/tmp/*

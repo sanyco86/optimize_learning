@@ -1,9 +1,6 @@
-# Deoptimized version of homework task
-
 require 'json'
 require 'pry'
 require 'date'
-require 'minitest/autorun'
 
 class User
   attr_reader :attributes, :sessions
@@ -43,16 +40,40 @@ def collect_stats_from_users(report, users_objects, &block)
   end
 end
 
-def work(data_file, report_file)
+def calculate_users_objects(users, users_sessions)
+  # Статистика по пользователям
+  users_objects = []
+
+  users.each do |user|
+    attributes = user
+    user_sessions = users_sessions[user['id']]
+    user_object = User.new(attributes: attributes, sessions: user_sessions)
+    users_objects = users_objects + [user_object]
+  end
+
+  users_objects
+end
+
+def work(data_file)
   file_lines = File.read(data_file).split("\n")
 
   users = []
   sessions = []
+  users_sessions = {}
 
   file_lines.each do |line|
     cols = line.split(',')
-    users = users + [parse_user(line)] if cols[0] == 'user'
-    sessions = sessions + [parse_session(line)] if cols[0] == 'session'
+    if cols[0] == 'user'
+      user = parse_user(line)
+      users = users + [user]
+      users_sessions[user['id']] ||= []
+    end
+
+    if cols[0] == 'session'
+      session = parse_session(line)
+      sessions = sessions + [parse_session(line)]
+      users_sessions[session['user_id']] << session
+    end
   end
 
   # Отчёт в json
@@ -93,15 +114,7 @@ def work(data_file, report_file)
       .uniq
       .join(',')
 
-  # Статистика по пользователям
-  users_objects = []
-
-  users.each do |user|
-    attributes = user
-    user_sessions = sessions.select { |session| session['user_id'] == user['id'] }
-    user_object = User.new(attributes: attributes, sessions: user_sessions)
-    users_objects = users_objects + [user_object]
-  end
+  users_objects = calculate_users_objects(users, users_sessions)
 
   report['usersStats'] = {}
 
@@ -140,15 +153,5 @@ def work(data_file, report_file)
     { 'dates' => user.sessions.map{|s| s['date']}.map {|d| Date.parse(d)}.sort.reverse.map { |d| d.iso8601 } }
   end
 
-  File.write(report_file, "#{report.to_json}\n")
-end
-
-# work('data_large.txt', 'result.json')
-
-class TestMe < Minitest::Test
-
-  def test_result
-    work('files/test_data.txt', 'files/result.json')
-    assert_equal File.read('files/test_result.json'), File.read('files/result.json')
-  end
+  File.write('files/result.json', "#{report.to_json}\n")
 end
