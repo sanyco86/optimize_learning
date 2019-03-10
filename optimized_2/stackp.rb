@@ -1,7 +1,7 @@
 require_relative 'optimized_2'
 require 'stackprof'
 
-# stackprof tmp/stackprof.dump --text --limit 5
+# stackprof optimized_2/tmp/stackprof.dump --text --limit 5
 # stackprof optimized_2/tmp/stackprof.dump --method 'Object#work'
 GC.disable
 StackProf.run(mode: :wall, out: 'tmp/stackprof.dump', raw: true) do
