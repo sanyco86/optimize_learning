@@ -276,3 +276,43 @@ Process 0.25 MB of data
 Наводим порядок и видем:
 Метрика выросла с `9.086ips` до `10.744ips`
 
+### Находка №7
+В программе часто встречается навороченный `Array#count`.
+Но ведь есть еще и `Array#size` и я предполагая, что он будет работать быстрее
+
+Проверяем теорию
+```
+require 'benchmark/ips'
+
+SIZE = 100_000
+ARRAY = [*1..SIZE]
+
+Benchmark.ips do |x|
+  x.config(:stats => :bootstrap, :confidence => 99)
+
+  x.report("Array#count") do
+    ARRAY.count
+  end
+
+  x.report("Array#size") do
+    ARRAY.size
+  end
+
+  x.compare!
+end
+```
+
+И получаем вот такой отчет:
+```
+Calculating -------------------------------------
+  Array#count      9.857M (± 0.6%) i/s - 49.427M in   5.019844s
+  Array#size     11.395M (± 0.8%) i/s - 57.044M in   5.017598s
+    with 99.0% confidence
+
+Comparison:
+  Array#size: 11395370.1 i/s
+  Array#count:  9856770.6 i/s - 1.16x  (± 0.01) slower
+    with 99.0% confidence
+```
+И понимаем, что лучше в программе заменить все на `Array#size`
+Особого эффекта это конечно не дало, но все же это оптимизация

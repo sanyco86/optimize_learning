@@ -49,8 +49,8 @@ def work(data_file, disable_gc: false)
 
   report = {}
 
-  report[:totalUsers]          = users.count
-  report[:uniqueBrowsersCount] = unique_browsers.count
+  report[:totalUsers]          = users.size
+  report[:uniqueBrowsersCount] = unique_browsers.size
   report[:totalSessions]       = total_sessions
   report[:allBrowsers]         = unique_browsers.sort!.join(COMMA_SEP)
   report[:usersStats]          = {}
@@ -62,7 +62,7 @@ def work(data_file, disable_gc: false)
     browsers          = user_sessions.map { |s| s[:browser] }
 
     report[:usersStats][user[:full_name]] = {
-      sessionsCount:    user_sessions.count,
+      sessionsCount:    user_sessions.size,
       totalTime:        "#{sessions_duration.sum} min.",
       longestSession:   "#{sessions_duration.max} min.",
       browsers:         browsers.sort!.join(COMMA_DELIM),
