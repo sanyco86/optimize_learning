@@ -93,7 +93,7 @@ def work(data_file, disable_gc: false)
       browsers: user_sessions.map {|s| s[:browser]}.map {|b| b.upcase}.sort.join(', '),
       usedIE: user_sessions.map{|s| s[:browser]}.any? { |b| b.upcase =~ /INTERNET EXPLORER/ },
       alwaysUsedChrome: user_sessions.map{|s| s[:browser]}.all? { |b| b.upcase =~ /CHROME/ },
-      dates: user_sessions.map{|s| s[:date]}.map {|d| Date.parse(d)}.sort.reverse.map { |d| d.iso8601 }
+      dates: user_sessions.map{|s| s[:date]}.map {|d| Date.strptime(d, '%Y-%m-%d')}.sort.reverse.map { |d| d.iso8601 }
     }
   end
 
