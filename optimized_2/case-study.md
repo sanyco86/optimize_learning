@@ -231,3 +231,32 @@ Process 0.25 MB of data
   5.050  (± 0.0%) i/s - 26.000  in   5.165178s
 ```
 Делаем Коммит!
+
+### Находка №4
+Отчет `ruby-prof` показывает, что `66.77%` всей памяти выделяется на 7 вызовов метода `collect_stats_from_users`.
+Сразу бросается в глаза, что все 7 вызовов тут излишни и хэшь можно собрать за одну итерацию.
+
+Рефакторим
+```
+  users.each do |user|
+    user_sessions = users_sessions.delete(user[:id]) || []
+    report[:usersStats][user[:full_name]] = {
+      sessionsCount: user_sessions.count,
+      totalTime: user_sessions.map {|s| s[:time]}.map {|t| t.to_i}.sum.to_s + ' min.',
+      longestSession: user_sessions.map {|s| s[:time]}.map {|t| t.to_i}.max.to_s + ' min.',
+      browsers: user_sessions.map {|s| s[:browser]}.map {|b| b.upcase}.sort.join(', '),
+      usedIE: user_sessions.map{|s| s[:browser]}.any? { |b| b.upcase =~ /INTERNET EXPLORER/ },
+      alwaysUsedChrome: user_sessions.map{|s| s[:browser]}.all? { |b| b.upcase =~ /CHROME/ },
+      dates: user_sessions.map{|s| s[:date]}.map {|d| Date.parse(d)}.sort.reverse.map { |d| d.iso8601 }
+    }
+  end
+```
+
+#### Эффект изменения
+Метрика выросла с `5.050ips` до `6.179ips`
+
+```
+Calculating -------------------------------------
+Process 0.25 MB of data
+  6.179  (± 0.0%) i/s - 31.000  in   5.039909s
+```
