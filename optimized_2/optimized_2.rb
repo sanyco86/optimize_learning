@@ -22,7 +22,7 @@ def parse_session(session)
   {
     user_id:    fields[1],
     session_id: fields[2],
-    browser:    fields[3],
+    browser:    fields[3].upcase!,
     time:       fields[4],
     date:       fields[5]
   }
@@ -42,10 +42,11 @@ def work(data_file, disable_gc: false)
     session = parse_session(row)
     sessions_by_users[session[:user_id]] ||= []
     sessions_by_users[session[:user_id]] << session
-    browser = session[:browser].upcase!
-    unique_browsers << browser unless unique_browsers.include?(browser)
+    unique_browsers << session[:browser]
     total_sessions += 1
   end
+
+  unique_browsers.uniq!
 
   report = {}
 
