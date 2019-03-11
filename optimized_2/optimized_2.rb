@@ -66,8 +66,8 @@ def work(data_file, disable_gc: false)
       totalTime:        "#{sessions_duration.sum} min.",
       longestSession:   "#{sessions_duration.max} min.",
       browsers:         browsers.sort!.join(COMMA_DELIM),
-      usedIE:           browsers.any? { |b| b =~ IE_REGEX },
-      alwaysUsedChrome: browsers.all? { |b| b =~ CHROME_REGEX },
+      usedIE:           browsers.any? { |b| b.match?(IE_REGEX) },
+      alwaysUsedChrome: browsers.all? { |b| b.match?(CHROME_REGEX) },
       dates:            user_sessions.map { |s| Date.strptime(s[:date], '%Y-%m-%d') }.sort!.reverse!.map!(&:iso8601)
     }
   end
