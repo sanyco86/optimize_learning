@@ -290,13 +290,9 @@ ARRAY = [*1..SIZE]
 Benchmark.ips do |x|
   x.config(:stats => :bootstrap, :confidence => 99)
 
-  x.report("Array#count") do
-    ARRAY.count
-  end
-
-  x.report("Array#size") do
-    ARRAY.size
-  end
+  x.report("Array#count")  { ARRAY.count }
+  x.report("Array#size")   { ARRAY.size }
+  x.report("Array#length") { ARRAY.length }
 
   x.compare!
 end
@@ -305,16 +301,18 @@ end
 И получаем вот такой отчет:
 ```
 Calculating -------------------------------------
-  Array#count      9.857M (± 0.6%) i/s - 49.427M in   5.019844s
-  Array#size     11.395M (± 0.8%) i/s - 57.044M in   5.017598s
-    with 99.0% confidence
+         Array#count      9.505M (± 2.4%) i/s -     46.235M in   5.005837s
+          Array#size     11.231M (± 1.3%) i/s -     55.869M in   5.006641s
+        Array#length     11.574M (± 0.6%) i/s -     57.867M in   5.006233s
+                   with 99.0% confidence
 
 Comparison:
-  Array#size: 11395370.1 i/s
-  Array#count:  9856770.6 i/s - 1.16x  (± 0.01) slower
-    with 99.0% confidence
+        Array#length: 11573934.0 i/s
+          Array#size: 11231052.5 i/s - 1.03x  (± 0.01) slower
+         Array#count:  9504959.6 i/s - 1.22x  (± 0.03) slower
+                   with 99.0% confidence
 ```
-И понимаем, что лучше в программе заменить все на `Array#size`
+И понимаем, что лучше в программе заменить все на `Array#length`
 Особого эффекта это конечно не дало, но все же это оптимизация
 
 ## Анализ асимптотики после оптимизации
